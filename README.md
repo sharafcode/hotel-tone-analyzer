@@ -38,3 +38,11 @@ First trial using IBM-watson tone analyzer &amp; Elasticsearch with Hotels data
  cluster.name: the cluster name
  node.name: node name
 ```
+
+### Deploy the Flask API with Gunicorn
+- Prerequsities
+  * Install Gunicorn
+  
+```
+>> gunicorn -b 0.0.0.0:4400 API:app
+```
