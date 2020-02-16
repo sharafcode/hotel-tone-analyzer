@@ -1,5 +1,6 @@
 import pandas as pd
 import logging
+import json
 from datetime import datetime
 from elasticsearch import Elasticsearch
 from tqdm import tqdm as tq
@@ -89,7 +90,7 @@ class ESIndexer(object):
         HOTEL_META = ['name', 'address', 'city' , 'country', 'latitude', 'longitude' , 'postalCode', 'province'] # Hotel Metadata fields to group in one field
         hotel_group= self.data_groups.get_group(hotel_name.lower())
 
-        hotel_metadata = json.loads(hotel_group[HOTEL_META].loc[0].to_json())
+        hotel_metadata = json.loads(hotel_group[HOTEL_META].iloc[0].to_json())
         hotel_group.drop(HOTEL_META, axis=1, inplace=True)
 
         COLS_RENAME = {col: col.split('reviews.')[1] for col in hotel_group.columns.to_list()} # Group all the reviews data in one object including the watson_data
@@ -150,7 +151,7 @@ class ESIndexer(object):
             None
         """
         
-        for hotel in self.data_groups:
+        for hotel in self.data_groups.groups:
             hotel_data = self.__group_hotel_reviews(hotel.lower())
             try:
                 outcome = self.es.index(index=index_name, doc_type=type_name, body=hotel_data)
