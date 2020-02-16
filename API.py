@@ -24,12 +24,13 @@ def tones_endpoint(api_key: str,
 
 def elasticsearch_index(host: str,
                         port: int,
+                        api_key: str,
                         data_path: str,
                         index_name: str,
                         type_name: str,
                         mapping_settings: dict):
     
-    ESI = ESIndexer(host , port , data_path)
+    ESI = ESIndexer(host , port , api_key , data_path)
     ESI.create_index(mapping_settings , index_name)
     ESI.store_records(index_name , type_name)
     status='ok'
@@ -63,8 +64,9 @@ def index_data():
     host = data['es_host'] if 'es_host' in data and isinstance(data['es_host'],str) else 'localhost'
     port = data['es_port'] if 'es_port' in data and isinstance(data['es_port'],str) else 9200
     data_path = data['data_path'] if 'data_path' in data and isinstance(data['data_path'],str) else 'hotel-reviews/7282_1.csv'
+    api_key = data['api_key'] if 'api_key' in data and isinstance(data['api_key'],str) else ''
     index_name =  data['index_name'] if 'index_name' in data and isinstance(data['index_name'],str) else 'hotels'
     type_name = data['type_name'] if 'type_name' in data and isinstance(data['type_name'],str) else 'reviews'
     mapping_settings =   data['es_mapping'] if 'es_mapping' in data and isinstance(data['es_mapping'], dict) else {}
-    return elasticsearch_index(host , port , data_path , index_name , type_name , mapping_settings)
+    return elasticsearch_index(host , port , api_key, data_path , index_name , type_name , mapping_settings)
 

@@ -11,9 +11,9 @@ tq.pandas()
 
 class ESIndexer(object):
     def __init__(self,
-                 api_key:str,
                  host:str = 'localhost',
                  port:int = 9200,
+                 api_key:str,
                  data_path:str='hotel-reviews/7282_1.csv'):
         
         """
