@@ -4,12 +4,14 @@ import json
 from datetime import datetime
 from elasticsearch import Elasticsearch
 from tqdm import tqdm as tq
+from ToneAnalyzer import ToneAnalyzer
 
 tq.pandas()
 
 
 class ESIndexer(object):
     def __init__(self,
+                 api_key:str,
                  host:str = 'localhost',
                  port:int = 9200,
                  data_path:str='hotel-reviews/7282_1.csv'):
@@ -30,7 +32,7 @@ class ESIndexer(object):
         # Dataset loading
         self.DATA_PATH = data_path
         self.data , self.data_groups = self.__load_data()
-        
+        self.TA = ToneAnalyzer(api_key)
         # ElasticSearch connection
         self.HOST = host
         self.PORT = port
@@ -83,13 +85,16 @@ class ESIndexer(object):
         Args:
             hotel_name: the hotel name passed to group its all reviews in just ONE object
         Returns:
-            hotel_object: {'metadata' => contains all the hotel meta-data (name, address , city ...etc.) 
-                           'reviews' => contains an array of objects for all reviews includingn watson-ibm predictions}
+            hotel_object: {'metadata' => contains all the hotel meta-data (name, address , city ...etc.), 
+                           'reviews' => contains an array of objects for all reviews,
+                           'tones' => watson-ibm tones analysis normalized for all reviews}
         """
         
         HOTEL_META = ['name', 'address', 'city' , 'country', 'latitude', 'longitude' , 'postalCode', 'province'] # Hotel Metadata fields to group in one field
-        hotel_group= self.data_groups.get_group(hotel_name.lower())
-
+        review_tones = self.TA.hotel_review_tones(self.data_groups, hotel_name)
+        tones_normalized = self.TA.normalize_tones(review_tones)
+        hotel_group = self.data_groups.get_group(hotel_name.lower())
+               
         hotel_metadata = json.loads(hotel_group[HOTEL_META].iloc[0].to_json())
         hotel_group.drop(HOTEL_META, axis=1, inplace=True)
 
@@ -98,7 +103,7 @@ class ESIndexer(object):
 
         reviews = list(json.loads(hotel_group.T.to_json()).values())
 
-        hotel_object = {'metadata': hotel_metadata, 'reviews': reviews} 
+        hotel_object = {'metadata': hotel_metadata, 'reviews': reviews, 'tones':tones_normalized} 
         return hotel_object 
 
         
