@@ -101,7 +101,7 @@ class ToneAnalyzer(object):
 
 
     def hotel_review_tones(self,
-                           groups: pandas.core.groupby.generic.DataFrameGroupBy,
+                           groups: pd.core.groupby.generic.DataFrameGroupBy,
                            hotel_name: str):
         
         """
@@ -121,7 +121,7 @@ class ToneAnalyzer(object):
 
 
     def normalize_tones(self,
-                        review_tones: pandas.core.series.Series):
+                        review_tones: pd.core.series.Series):
         
         """
         Normalize all the tones for specific hotel reviews.
